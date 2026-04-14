@@ -38,6 +38,8 @@ def receive_webhook():
             return jsonify({"error": f"Unknown action: {action}"}), 400
         sl = float(data.get("sl", 0.0))
         tp = float(data.get("tp", 0.0))
+        if action in ["BUY", "SELL"] and (sl == 0.0 or tp == 0.0):
+            return jsonify({"error": "SL/TP cannot be zero"}), 400
         latest_signal = {
             "action": action,
             "sl": sl,
@@ -45,10 +47,9 @@ def receive_webhook():
             "timestamp": time.time(),
             "consumed": False
         }
-        print(f"Signal Received: {action} | SL={sl} | TP={tp}")
+        print(f"Signal: {action} | SL={sl} | TP={tp}")
         return jsonify({"status": "ok", "signal": action}), 200
     except Exception as e:
-        print(f"ERROR: {e}")
         return jsonify({"error": str(e)}), 500
 
 
